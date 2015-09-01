@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.malone.sys.sysmanage">
+	<!-- =========================系统管理模块-============================ -->
+	<!-- 根据部门ID查询当前部门及子部门所有用户 -->
+	<select id="selectUsersByDpid" resultMap="com.malone.sys.login.sysUserMap" parameterType="int">
+		<![CDATA[select *
+		  from ts_user t, ts_dept d
+		 where t.dpid in 
+		 (select dpid from ts_dept
+		       start with dpid = #{dpid}
+		       connect by prior dpid = updpid)
+		   and t.dpid = d.dpid
+		   and t.ustate <> -2 ]]>
+	</select>
+	<!-- 根据菜单ID查询子菜单列表 -->
+	<select id="selectSubMenusByMuid" resultType="com.malone.sys.dto.SysMenu" parameterType="java.util.HashMap">
+		 select m.*,p.pvoperation
+	      from ts_menu m,(select t.pvaccessvalue, t.pvoperation
+	              from ts_privilege t
+	             where (t.pvmaster = 'User' and t.pvmastervalue = #{usid})
+	                or (t.pvmaster = 'Role' and t.pvmastervalue in
+	                   <foreach item="roids" index="index" collection="rolelist" open="(" separator="," close=")">  
+		                	#{roids.roid}
+		              	</foreach>)
+	                   or (t.pvmaster = 'Dept' and t.pvmastervalue = #{dpid}))p
+	     where m.upmuid = #{curmuid}
+	       and m.mutype = 'Button'
+	       and m.mustate = 1
+	       and m.muid = p.pvaccessvalue
+	       order by m.muorder
+	</select>
+	<!-- 根据用户ID集合逻辑删除用户 -->
+	<update id="updateUserByUsids">
+		update ts_user t set t.ustate = '-2' where t.usid in 
+		<foreach item="usids" index="index" collection="array" open="(" separator="," close=")">  
+        	#{usids}
+        </foreach> 
+	</update>
+	<!-- 根据角色ID集合逻辑删除角色-->
+	<update id="deleteRoleByRoids">
+		update ts_role t set t.rostate = '-2' where t.roid in 
+		<foreach item="roids" index="index" collection="array" open="(" separator="," close=")">  
+        	#{roids}
+        </foreach> 
+	</update>
+	<!-- 根据用户ID查询用户信息 -->
+	<select id="selectUserByUsid" resultMap="com.malone.sys.login.sysUserMap" parameterType="int">
+		<![CDATA[select *
+	      from ts_user u, ts_dept d
+	     where u.usid = #{usid}
+	       and u.ustate <> -2
+	       and u.dpid = d.dpid ]]>
+	</select>
+	<!-- 根据角色ID查询角色信息 -->
+	<select id="selectRoleByRoid" resultType="com.malone.sys.dto.SysRole" parameterType="int">
+		<![CDATA[select * from ts_role where roid = #{roid} and rostate <> -2 ]]>
+	</select>
+	<!-- 根据用户ID更新用户信息 -->
+	<update id="updateUserByUsid" parameterType="com.malone.sys.dto.SysUser">
+		update ts_user u
+		   set u.usacct     = #{usacct},
+		       u.usname     = #{usname},
+		       u.usrealname = #{usrealname},
+		       u.dpid       = #{sysdept.dpid},
+		       u.usphone    = #{usphone},
+		       u.usemail    = #{usemail},
+		       u.ustate     = #{ustate},
+		       u.uscardno   = #{uscardno},
+		       u.loginagain = #{loginagain}
+		 where u.usid = #{usid}
+	</update>
+	<!-- 根据角色ID更新角色信息 -->
+	<update id="updateRoleByRoid" parameterType="com.malone.sys.dto.SysRole">
+		update ts_role r
+		   set r.roname     = #{roname},
+		       r.rotype     = #{rotype},
+		       r.rostate	= #{rostate},
+		       r.rodesc     = #{rodesc}
+		 where r.roid = #{roid}
+	</update>
+	<!-- 根据角色ID更新菜单信息 -->
+	<update id="updateMenuByMuid" parameterType="com.malone.sys.dto.SysMenu">
+		update ts_menu m 
+			set m.muname	= #{muname},
+				m.muicon	= #{muicon},
+				m.mulink	= #{mulink},
+				m.mustate	= #{mustate},
+				m.muorder	= #{muorder},
+				m.mutype	= #{mutype} 
+		where m.muid = #{muid}
+	</update>
+	<!--插入新用户信息 -->
+	<update id="insertUser" parameterType="com.malone.sys.dto.SysUser">
+		<selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="usid">
+			select seq_ts_user.nextval from dual
+		</selectKey>
+		insert into ts_user
+		  (usid, usacct, usname, usrealname, dpid, usphone, usemail, ustate, loginagain, uscardno)
+		values
+		  (#{usid},#{usacct},#{usname},#{usrealname},#{sysdept.dpid},#{usphone},#{usemail},#{ustate},#{loginagain},#{uscardno})
+	</update>
+	<!--插入新角色 -->
+	<insert id="insertRole" parameterType="com.malone.sys.dto.SysRole">
+		<selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="roid">
+			select seq_ts_role.nextval from dual
+		</selectKey>
+		insert into ts_role
+		  (roid, roname, rotype, rostate, rodesc, creater)
+		values
+		  (#{roid},#{roname},#{rotype},#{rostate},#{rodesc},#{creater})
+	</insert>
+	<!--插入新菜单 -->
+	<insert id="insertMenu" parameterType="com.malone.sys.dto.SysMenu">
+		<selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="muid">
+			select seq_ts_menu.nextval from dual
+		</selectKey>
+		insert into ts_menu(muid,muname,upmuid,muicon,mulink,mulevel,mutitle,mustate,muorder,mutype,creater)
+		values
+		(#{muid},#{muname},#{upmuid},#{muicon},#{mulink},#{mulevel},'',#{mustate},#{muorder},#{mutype},#{creater})
+	</insert>
+	<!-- 查询当前登录用户所拥有的角色权限列表 用户角色+用户创建的角色  不包括无效的角色-->
+	<select id="selectAllRolesByUsidNotInvalid" resultType="com.malone.sys.dto.SysRole" parameterType="int">
+		select r.*
+		  from ts_user_role ur, ts_role r
+		 where ur.roid = r.roid
+		   and ur.usid = #{usid}
+		   and r.rostate = 1
+		union
+		select *
+		  from ts_role r
+		 where r.creater = #{usid}
+		   and r.rostate = 1
+	</select>
+	<!-- 查询当前登录用户所拥有的角色权限列表 用户角色+用户创建的角色 包括无效的角色-->
+	<select id="selectAllRolesByUsid" resultType="com.malone.sys.dto.SysRole" parameterType="int">
+		<![CDATA[select r.*
+		  from ts_user_role ur, ts_role r
+		 where ur.roid = r.roid
+		   and ur.usid = #{usid}
+		   and r.rostate <> -2
+		union
+		select *
+		  from ts_role r
+		 where r.creater = #{usid}
+		   and r.rostate <> -2 ]]>
+	</select>
+	<!-- 查询当前登录用户所拥有的菜单权限列表 包括 模版 菜单 按钮 -->
+	<select id="selectAllMenusByUserRoleDept" resultType="com.malone.sys.dto.SysMenu" parameterType="java.util.HashMap" >
+		select m.*, p.pvoperation
+	      from ts_menu m,
+	           (select t.pvaccessvalue, t.pvoperation
+	              from ts_privilege t
+	             where (t.pvmaster = 'User' and t.pvmastervalue = #{usid})
+	                or (t.pvmaster = 'Role' and t.pvmastervalue in
+	                	<foreach item="roids" index="index" collection="rolelist" open="(" separator="," close=")">  
+		                	#{roids.roid}
+		              	</foreach>
+	                   or (t.pvmaster = 'Dept' and t.pvmastervalue = #{dpid}))) p
+	     where m.muid = p.pvaccessvalue
+	       and m.mustate = 1
+	</select>
+	<!-- 查询当前登录用户所拥有的数据权限列表 暂时仅限区域数据类型 -->
+	<select id="selectAllDatacsByDtcsids" resultType="com.malone.sys.dto.SysDatacs">
+		select *
+		  from ts_datacs
+		  where dtcstype = 1
+		 start with dtcsid in 
+		 	<foreach item="dtcsids" index="index" collection="list" open="(" separator="," close=")">  
+             	#{dtcsids.dtcsid}
+           	</foreach>
+		connect by prior dtcsid = dtcsupid
+	</select>
+	<!-- 查询数据权限类型 -->
+	<select id="selectDatacsType" resultType="com.malone.sys.dto.SysDatacsType">
+		select * from ts_datacstype
+	</select>
+	<!-- 查询用户拥有权限的菜单列表 -->
+	<select id="selectMenusByUserRoleDept" resultType="com.malone.sys.dto.SysMenu" parameterType="java.util.HashMap" >
+		select *
+		  from ts_menu m where m.muid in 
+		       (select t.pvaccessvalue
+		          from ts_privilege t
+		         where (t.pvmaster = 'User' and t.pvmastervalue = #{usid})
+		            or (t.pvmaster = 'Role' and t.pvmastervalue in
+		            	<foreach item="roids" index="index" collection="rolelist" open="(" separator="," close=")">  
+		                	#{roids.roid}
+		              	</foreach>)
+		               or (t.pvmaster = 'Dept' and t.pvmastervalue = #{dpid}))
+		   and m.mustate = 1
+		    union 
+	       select m.*
+	      from ts_menu m
+	      where  m.mustate = 1
+	      and m.creater = 1
+	</select>
+	<!-- 查询角色已有菜单列表 -->
+	<select id="selectMenusByRoid" resultType="com.malone.sys.dto.SysMenu" parameterType="int" >
+		select *
+		  from ts_menu m
+		 where m.muid in (select p.pvaccessvalue
+		                    from ts_privilege p
+		                   where p.pvmaster = 'Role'
+		                     and p.pvmastervalue = #{roid})
+	</select>
+	<!-- 新增角色权限 -->
+	<insert id="insertRolePrivilege" parameterType="java.util.HashMap">
+		insert into ts_privilege(pvid,pvmaster,pvmastervalue,pvaccessvalue,pvoperation)values(seq_ts_privilege.nextval,'Role',#{roid},#{muid},'Available')
+	</insert>
+	<!-- 删除角色权限 -->
+	<delete id="deleteRolePrivilege" parameterType="java.util.HashMap">
+		delete ts_privilege where pvmaster = 'Role' and pvmastervalue = #{roid} and pvaccessvalue = #{muid}
+	</delete>
+	<!-- 根据用户ID删除用户拥有的角色 -->
+	<delete id="deleteUserRolesByUsid" parameterType="java.util.HashMap">
+		delete from ts_user_role ur where ur.usid = #{usid}
+	</delete>
+	<!-- 根据用户ID删除用户拥有的数据权限 -->
+	<delete id="deleteUserDatacsByUsid" parameterType="java.util.HashMap">
+		delete from ts_user_datacs ud where ud.usid = #{usid}
+	</delete>
+	<!-- 根据用户ID角色ID插入新的用户角色映射关系 -->
+	<insert id="insertUserRolesByUsid" parameterType="java.util.HashMap">
+		insert into ts_user_role(usid,roid)values(#{usid},#{roid})
+	</insert>
+	<!-- 根据用户ID数据权限ID插入新的用户数据权限映射关系 -->
+	<insert id="insertUserDatacsByUsid" parameterType="java.util.HashMap">
+		insert into ts_user_datacs(usid,dtcsid)values(#{usid},#{dtid})
+	</insert>
+	<!-- 查询系统全部菜单列表 -->
+	<select id="selectAllMenus" resultType="com.malone.sys.dto.SysMenu">
+		<![CDATA[select * from ts_menu where mustate <> -2 ]]>
+	</select>
+	<!-- 逻辑删除菜单 -->
+	<delete id="deleteMenuByMuid" parameterType="java.lang.String">
+		update ts_menu m set m.mustate = -2 where m.muid = #{muid}
+	</delete>
+	<!-- 根据菜单ID查询菜单信息 -->
+	<select id="selectMenuInfoByMuid" parameterType="java.lang.String" resultType="com.malone.sys.dto.SysMenu">
+		<![CDATA[select * from ts_menu m where m.muid = #{muid} and m.mustate <> -2]]>
+	</select>
+	<!-- 查询日志列表 -->
+	<select id="selectLogList" resultType="com.malone.sys.dto.SysOperLog" parameterType="java.util.HashMap" >
+		select * from 
+		(
+		select a.*, rownum rn 
+		from (select * from tl_operate_log where 1=1
+			<if test="startTime != null  and startTime!=''"> and operdate &gt;= to_date(#{startTime},'yyyy-MM-dd')  </if>
+		 	<if test="endTime != null and endTime!=''">  and operdate &lt;= to_date(#{endTime},'yyyy-MM-dd')  </if>
+		 	<if test="opertype != null and opertype!=''" >  and opertype in
+		 		 <foreach item="opertype" index="index" collection="opertype" open="(" separator="," close=")">  
+                	#{opertype}
+              	</foreach> </if>
+            <if test="sSearch != null and sSearch!=''" > and  opercontext like '%'||#{sSearch}||'%'</if>
+			<if test="sortColumnName != null and sortColumnName!=''" >  order by ${sortColumnName}  ${sortRule}  </if>
+		) a 
+		where rownum &lt;= #{iDisplayEnd}
+		)
+		where rn &gt;= #{iDisplayStart}
+	</select>
+	<!-- 查询日志总数量 -->
+	<select id="selectLogCounts" resultType="java.lang.Integer" parameterType="java.util.HashMap" >
+		select count(1) from tl_operate_log where 1=1
+		<if test="startTime != null  and startTime!=''"> and operdate &gt;= to_date(#{startTime},'yyyy-MM-dd')  </if>
+		 	<if test="endTime != null and endTime!=''">  and operdate &lt;= to_date(#{endTime},'yyyy-MM-dd')  </if>
+		 	<if test="opertype != null and opertype!=''" >  and opertype in
+		 		 <foreach item="opertype" index="index" collection="opertype" open="(" separator="," close=")">  
+                	#{opertype}
+              	</foreach> </if>
+            <if test="sSearch != null and sSearch!=''" > and  opercontext like '%'||#{sSearch}||'%'</if>
+	</select>
+</mapper>

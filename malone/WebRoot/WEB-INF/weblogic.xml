@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE weblogic-web-app PUBLIC "-//BEA Systems, Inc.//DTD Web Application 8.1//EN"
+"http://www.bea.com/servers/wls810/dtd/weblogic810-web-jar.dtd">
+<weblogic-web-app>
+    <session-descriptor>
+    	<session-param>
+			<param-name>CookiesEnabled</param-name>
+			<param-value>true</param-value>
+		</session-param>
+		<session-param>
+	        <param-name>TimeoutSecs</param-name>
+	        <param-value>3600</param-value>
+	    </session-param>
+ 		<debug-enabled>true</debug-enabled>
+ 		<persistent-store-type>replicated_if_clustered</persistent-store-type>
+		<sharing-enabled>true</sharing-enabled>
+	</session-descriptor>
+    <context-root>/malone</context-root>
+    <charset-params>
+		<input-charset>
+			<resource-path>/*</resource-path>
+			<java-charset-name>UTF-8</java-charset-name>
+		</input-charset>
+	</charset-params>
+</weblogic-web-app>

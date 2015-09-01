@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.malone.sys.login">
+	<!-- =========================系统登录模块-============================ -->
+	
+	<!-- 根据帐号密码查询用户和部门 -->
+	<select id="selectUserAndDeptByUsacctPass" resultMap="sysUserMap" parameterType="java.util.HashMap">
+		select *
+		  from ts_user u, ts_dept d
+		 where u.usacct = #{usacct}
+		   and u.uspass = #{uspass}
+		   and u.ustate = 1
+		   and u.dpid = d.dpid
+	</select>
+	<!-- 用户信息和部门信息结果集 -->
+	<resultMap type="com.malone.sys.dto.SysUser" id="sysUserMap">
+		<id property="usid" column="usid"/>
+		<result property="usacct" column="usacct"/>
+		<result property="usacct" column="usacct"/>
+		<result property="usname" column="usname"/>
+		<result property="usrealname" column="usrealname"/>
+		<result property="uspass" column="uspass"/>
+		<result property="usphone" column="usphone"/>
+		<result property="usemail" column="usemail"/>
+		<result property="ustate" column="ustate"/>
+		<result property="uscardno" column="uscardno"/>
+		<result property="createdate" column="createdate"/>
+		<result property="loginagain" column="loginagain"/>
+		<!-- 一对一标签 -->
+		<association property="sysdept" column="DPID" javaType="com.malone.sys.dto.SysDept">
+			<id property="dpid" column="dpid"/>
+			<result property="updpid" column="updpid"/>
+			<result property="dpname" column="dpname"/>
+			<result property="dpstate" column="dpstate"/>
+			<result property="dplevel" column="dplevel"/>
+			<result property="dpdesc" column="dpdesc"/>
+		</association>  
+	</resultMap>
+	<!-- 根据帐号查询关联的角色 -->
+	<select id="selectRolesByUsid" resultType="com.malone.sys.dto.SysRole" parameterType="int">
+		select r.*
+		  from ts_user_role ur, ts_role r
+		 where ur.roid = r.roid
+		   and ur.usid = #{usid}
+		   and r.rostate = 1
+	</select>
+	<!-- 根据帐号查询关联的数据权限 -->
+	<select id="selectDatasByUsid" resultType="com.malone.sys.dto.SysDatacs" parameterType="int">
+		select ud.*
+		  from ts_user_datacs d, ts_datacs ud
+		 where d.dtcsid = ud.dtcsid
+		   and d.usid=#{usid}
+	</select>
+	<!-- 查询用户菜单列表 -->
+	<select id="selectMenusByUserRoleDept" resultType="com.malone.sys.dto.SysMenu" parameterType="java.util.HashMap" >
+		select m.*, p.pvoperation
+		  from ts_menu m,
+		       (select t.pvaccessvalue, t.pvoperation
+		          from ts_privilege t
+		         where (t.pvmaster = 'User' and t.pvmastervalue = #{usid})
+		            or (t.pvmaster = 'Role' and t.pvmastervalue in
+		            	<foreach item="roids" index="index" collection="rolelist" open="(" separator="," close=")">  
+		                	#{roids.roid}
+		              	</foreach>)
+		               or (t.pvmaster = 'Dept' and t.pvmastervalue = #{dpid})) p
+		 where m.muid = p.pvaccessvalue
+		   and m.mustate = 1
+		   and m.mutype in ('Application','Menu')
+	</select>
+	<!-- 查询部门树 -->
+	<select id="selectDeptsByDepid" resultType="com.malone.sys.dto.SysDept" parameterType="int">
+		select *
+		  from ts_dept d
+		 where d.dpstate = 1
+		 start with d.dpid = #{dpid}
+		connect by prior d.dpid = d.updpid
+	</select>
+	<!-- 更新用户密码 -->
+	<update id="updateUserPassByUsid" parameterType="com.malone.sys.dto.SysUser">
+		update ts_user t set t.uspass=#{uspass} where t.usid=#{usid}
+	</update>
+</mapper>

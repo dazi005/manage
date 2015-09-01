@@ -1,0 +1,111 @@
+<root>
+	<update>
+		<date>2015-05-07</date>
+		<content>创建项目</content>
+		<content>引入Spring mvc框架</content>
+		<content>集成谷歌kaptcha v2.3.2验证码插件</content>
+		<content>引入Log4j2日志机制</content>
+	</update>
+	<update>
+		<date>2015-05-08</date>
+		<content>引入Mybatis3.2.8框架</content>
+		<content>使用阿里Druid数据源</content>
+	</update>
+	<update>
+		<date>2015-05-12</date>
+		<content>添加cookie操作、多属性文件读取工具类</content>
+	</update>
+	<update>
+		<date>2015-05-13</date>
+		<content>引入基于Bootstrap3的ACE UI框架</content>
+	</update>
+	<update>
+		<date>2015-05-16</date>
+		<content>UI框架调整为charisma</content>
+		<content>引入zTree3.5插件</content>
+	</update>
+	<update>
+		<date>2015-05-17</date>
+		<content>修改charisma UI，默认皮肤调整，支持多级菜单下拉</content>
+		<content>多级菜单数据库读取完成</content>
+		<content>退出登录、密码修改功能完成</content>
+		<content>增加登录判断拦截器</content>
+	</update>
+	<update>
+		<date>2015-05-18</date>
+		<content>系统操作日志记录</content>
+		<content>UI主体皮肤全局设置 不再绑定菜单</content>
+		<content>统一登录跳转</content>
+	</update>
+	<update>
+		<date>2015-05-19</date>
+		<content>jquery.datatables控件封装、改用post发送请求</content>
+		<content>左侧菜单树页面载入后选中当前菜单 并展开</content>
+	</update>
+	<update>
+		<date>2015-05-20</date>
+		<content>jquery.datatables控件扩展，增加动态重新载入数据方法</content>
+		<content>左侧菜单树页面载入后选中当前菜单 并展开</content>
+		<content>完成用户查询、用户删除功能</content>
+	</update>
+	<update>
+		<date>2015-05-21</date>
+		<content>弹出层封装</content>
+	</update>
+	<update>
+		<date>2015-05-22</date>
+		<content>按钮级菜单 左侧菜单展开状态</content>
+		<content>增加邮箱自动提示插件（由bootstrap-typeahead.js改造），bootstrap-typeahead鼠标向上向下选中BUG修复</content>
+	</update>
+	<update>
+		<date>2015-05-23</date>
+		<content>消息框封装</content>
+	</update>
+	<update>
+		<date>2015-05-24</date>
+		<content>引入jquery.validate1.13.1插件</content>
+	</update>
+	<update>
+		<date>2015-05-25</date>
+		<content>jquery.validate 自定义错误提示方式</content>
+		<content>用户编辑完成</content>
+	</update>
+	<update>
+		<date>2015-05-26</date>
+		<content>邮箱地址自动提示脚本BUG修复</content>
+		<content>用户新增完成</content>
+	</update>
+	<update>
+		<date>2015-05-28</date>
+		<content>用户权限分配页面</content>
+	</update>
+	<update>
+		<date>2015-05-30</date>
+		<content>角色查询、新增角色、删除角色、修改角色完成</content>
+	</update>
+	<update>
+		<date>2015-06-1</date>
+		<content>角色权限分配完成</content>
+	</update>
+	<update>
+		<date>2015-06-2</date>
+		<content>用户权限分配完成</content>
+	</update>
+	<update>
+		<date>2015-06-3</date>
+		<content>弹出框增加ajax url的支持</content>
+		<content>菜单列表、新增菜单、编辑菜单完成</content>
+	</update>
+	<update>
+		<date>2015-06-6</date>
+		<content>引入memcached缓存框架</content>
+	</update>
+	<update>
+		<date>2015-06-9</date>
+		<content>Druid配置完善，增加Web应用监控、Session监控、Spring监控、Url监控等，增加登录验证</content>
+	</update>
+	<update>
+		<date>2015-06-11</date>
+		<content>引入elfinder资源管理器</content>
+	</update>
+</root>

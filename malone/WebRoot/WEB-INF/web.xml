@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+	http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+	<display-name>通用后台管理系统</display-name>
+
+	<!-- 阿里数据源Druid BENGIN -->
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+		<init-param>
+			<!-- 允许清空统计数据 -->
+			<param-name>resetEnable</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<!-- 用户名 -->
+			<param-name>loginUsername</param-name>
+			<param-value>admin</param-value>
+		</init-param>
+		<init-param>
+			<!-- 密码 -->
+			<param-name>loginPassword</param-name>
+			<param-value>admin19881205</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+	<!-- 阿里数据源Druid END -->
+	<!-- elfinder 插件 -->
+    <servlet>
+		<servlet-name>elfinder</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+		<servlet-name>elfinder</servlet-name>
+		<url-pattern>/elfinder-servlet/*</url-pattern>
+    </servlet-mapping>
+	<!-- spring3 mvc BEGIN -->
+	<servlet>
+		<servlet-name>springMVC</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>classpath*:/springMVC.xml,classpath*:/applicationContext-comm.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springMVC</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	<!-- spring3 mvc END -->
+	<!-- Druid web监控 BEGIN -->
+	<filter>
+	    <filter-name>DruidWebStatFilter</filter-name>
+	    <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+	    <init-param>
+	        <param-name>exclusions</param-name>
+	        <param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,*.woff,*.ttf,/druid/*</param-value>
+	    </init-param>
+	    <!-- 默认1000个 可以按需配置 -->
+	    <init-param>
+	        <param-name>sessionStatMaxCount</param-name>
+	        <param-value>1000</param-value>
+	    </init-param>
+	    <!-- 设置为false可关闭session统计功能 -->
+	    <init-param>
+	        <param-name>sessionStatEnable</param-name>
+	        <param-value>true</param-value>
+	    </init-param>
+	    <!-- 当前的session用户 -->
+	    <init-param>
+	        <param-name>principalSessionName</param-name>
+	        <param-value>session_user_key</param-value>
+	    </init-param>
+	    <!-- 配置profileEnable能够监控单个url调用的sql列表 -->
+	    <init-param>
+		    <param-name>profileEnable</param-name>
+		    <param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+	    <filter-name>DruidWebStatFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- Druid web监控 END -->
+	<!-- Log4j2 BEGIN -->
+	<listener>
+		<listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
+	</listener>
+	<filter>
+		<filter-name>log4jServletFilter</filter-name>
+		<filter-class>org.apache.logging.log4j.web.Log4jServletFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>log4jServletFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+	<!-- Log4j2 END -->
+
+	<!-- Spring字符集过滤器  BENGIN-->
+	<filter>
+		<filter-name>SpringEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>SpringEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<!-- Spring字符集过滤器  END-->
+	
+	<!-- 不拦截静态文件 -->  
+	<servlet-mapping>  
+	    <servlet-name>FileServlet</servlet-name>  
+	    <url-pattern>*.js</url-pattern>  
+	    <url-pattern>*.css</url-pattern>  
+	    <url-pattern>*.png</url-pattern>
+	    <url-pattern>*.jpg</url-pattern>
+	    <url-pattern>*.gif</url-pattern>
+	    <url-pattern>*.ico</url-pattern>
+	    <url-pattern>*.woff</url-pattern>
+	    <url-pattern>*.ttf</url-pattern>
+	</servlet-mapping> 
+
+	<!-- 系统首页 -->
+	<welcome-file-list>
+		<welcome-file>/sys/login.jsp</welcome-file>
+	</welcome-file-list>
+	<!-- 配置404/500错误页面 -->
+  	<error-page>
+		<error-code>404</error-code>
+		<location>/comm/error/404.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/comm/error/500.jsp</location>
+	</error-page>
+	
+</web-app>

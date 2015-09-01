@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	   xmlns:p="http://www.springframework.org/schema/p" 
+	   xmlns:mvc="http://www.springframework.org/schema/mvc" 
+	   xmlns:context="http://www.springframework.org/schema/context" 
+	   xsi:schemaLocation="  
+    http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+    http://www.springframework.org/schema/context  
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd  
+    http://www.springframework.org/schema/mvc  
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+    <!-- 添加注解驱动 -->
+    <mvc:annotation-driven />
+    <!-- 默认扫描的包路径 -->  
+    <context:component-scan base-package="com.malone"/>
+    <!-- 过滤静态文件的拦截  用中间件容器的默认   -->
+    <mvc:default-servlet-handler default-servlet-name="FileServlet"/>
+    <!-- 定义跳转的文件的前后缀 -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+        <property name="prefix" value="/" />  
+        <property name="suffix" value=".jsp" />  
+    </bean>
+    <!-- 权限拦截器 -->  
+    <mvc:interceptors>  
+    	<mvc:interceptor>
+    		<mvc:mapping path="/**" />
+    		<bean class="com.malone.sys.interceptor.SysAuthorityInterceptor" >
+    			<property name="excludeUrlPatterns">
+    				<list>
+                        <value>/**/*login</value> 
+                        <value>/**/*loginout</value>
+                        <value>/**/kaptcha-image</value>
+                    </list>  
+    			</property>
+    		</bean>  
+    	</mvc:interceptor>
+    </mvc:interceptors>
+</beans>

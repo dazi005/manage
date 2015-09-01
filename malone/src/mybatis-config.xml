@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="false" />
+		<!-- 指定日志框架为LOG4J2 -->
+		<setting name="logImpl" value="LOG4J2" />
+	</settings>
+	<mappers>
+		<mapper resource="com/malone/test/map/sqlmap-test.xml" />
+		<!-- 系统登录 -->
+		<mapper resource="com/malone/sys/map/sqlmap-sys-login.xml" />
+		<!-- 系统日志 -->
+		<mapper resource="com/malone/sys/map/sqlmap-sys-log.xml" />
+		<!-- 系统管理 -->
+		<mapper resource="com/malone/sys/map/sqlmap-sys-sysmanage.xml"/>
+	</mappers> 
+</configuration>
